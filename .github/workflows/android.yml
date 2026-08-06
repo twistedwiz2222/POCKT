@@ -32,35 +32,62 @@ jobs:
         with:
           gradle-version: "8.13"
 
-      # A stable debug key prevents "App not installed" when updating an APK
-      # produced by a later clean GitHub runner.
-      - name: Restore stable debug signing key
+      # A stable release key prevents "App not installed" when updating an APK
+      # produced by a later clean GitHub runner, and avoids debug APK warnings.
+      - name: Restore POCKT release signing key
         uses: actions/cache@v4
         with:
-          path: ~/.android/debug.keystore
-          key: pockt-debug-keystore-v1
+          path: ~/.android/pockt-release.keystore
+          key: pockt-release-keystore-v1
+
+      - name: Create POCKT release signing key
+        shell: bash
+        run: |
+          mkdir -p ~/.android
+          if [ ! -f ~/.android/pockt-release.keystore ]; then
+            keytool -genkeypair \
+              -v \
+              -storetype PKCS12 \
+              -keystore ~/.android/pockt-release.keystore \
+              -storepass "${POCKT_KEYSTORE_PASSWORD}" \
+              -alias "${POCKT_KEY_ALIAS}" \
+              -keypass "${POCKT_KEY_PASSWORD}" \
+              -keyalg RSA \
+              -keysize 4096 \
+              -validity 10000 \
+              -dname "CN=POCKT, OU=Personal Finance, O=POCKT, L=Bengaluru, ST=Karnataka, C=IN"
+          fi
+        env:
+          POCKT_KEYSTORE_PASSWORD: pockt-local-release-pass
+          POCKT_KEY_ALIAS: pockt
+          POCKT_KEY_PASSWORD: pockt-local-release-pass
 
       - name: Run unit tests
         run: gradle --no-daemon testDebugUnitTest
 
-      - name: Build debug APK
-        run: gradle --no-daemon assembleDebug
+      - name: Build release APK
+        run: gradle --no-daemon assembleRelease
+        env:
+          POCKT_KEYSTORE_PATH: /home/runner/.android/pockt-release.keystore
+          POCKT_KEYSTORE_PASSWORD: pockt-local-release-pass
+          POCKT_KEY_ALIAS: pockt
+          POCKT_KEY_PASSWORD: pockt-local-release-pass
 
       - name: Verify and prepare APK
         shell: bash
         run: |
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)"
-          "$APKSIGNER" verify --verbose app/build/outputs/apk/debug/app-debug.apk
-          unzip -t app/build/outputs/apk/debug/app-debug.apk
-          cp app/build/outputs/apk/debug/app-debug.apk POCKT-v0.2.0-debug.apk
-          sha256sum POCKT-v0.2.0-debug.apk > POCKT-v0.2.0-debug.apk.sha256
+          "$APKSIGNER" verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk
+          unzip -t app/build/outputs/apk/release/app-release.apk
+          cp app/build/outputs/apk/release/app-release.apk POCKT-v0.3.0-release.apk
+          sha256sum POCKT-v0.3.0-release.apk > POCKT-v0.3.0-release.apk.sha256
 
       - name: Upload POCKT APK
         uses: actions/upload-artifact@v4
         with:
-          name: POCKT-debug-apk
+          name: POCKT-release-apk
           path: |
-            POCKT-v0.2.0-debug.apk
-            POCKT-v0.2.0-debug.apk.sha256
+            POCKT-v0.3.0-release.apk
+            POCKT-v0.3.0-release.apk.sha256
           if-no-files-found: error
           retention-days: 30

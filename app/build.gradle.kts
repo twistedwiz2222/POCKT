@@ -9,13 +9,44 @@ android {
     namespace = "com.pockt.app"
     compileSdk = 36
 
+    val pocktStoreFile = System.getenv("POCKT_KEYSTORE_PATH")
+    val pocktStorePassword = System.getenv("POCKT_KEYSTORE_PASSWORD")
+    val pocktKeyAlias = System.getenv("POCKT_KEY_ALIAS")
+    val pocktKeyPassword = System.getenv("POCKT_KEY_PASSWORD")
+    val hasReleaseSigning = listOf(
+        pocktStoreFile,
+        pocktStorePassword,
+        pocktKeyAlias,
+        pocktKeyPassword
+    ).all { !it.isNullOrBlank() }
+
     defaultConfig {
         applicationId = "com.pockt.app"
         minSdk = 23
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "0.3.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(pocktStoreFile!!)
+                storePassword = pocktStorePassword
+                keyAlias = pocktKeyAlias
+                keyPassword = pocktKeyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
     }
 
     buildFeatures { compose = true; buildConfig = true }

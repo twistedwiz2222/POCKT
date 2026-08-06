@@ -17,9 +17,9 @@ A private, offline-first Android spending companion that turns payment confirmat
 
 ## Why POCKT exists
 
-Payment apps make individual purchases frictionless, but they rarely show what each payment means for the rest of your month. POCKT observes successful payment notifications—with explicit Android permission—and translates them into something actionable:
+Payment apps make individual purchases frictionless, but they rarely show what each payment means for the rest of your month. POCKT observes successful payment notifications with explicit Android permission and translates them into something actionable:
 
-> **₹280 spent at Swiggy · ₹1,720 left · ₹132/day available**
+> **Rs. 280 spent at Swiggy - Rs. 1,720 left - Rs. 132/day available**
 
 There is no account, cloud service, advertising SDK, or financial-data upload. POCKT works locally on your phone.
 
@@ -52,20 +52,20 @@ See [PRIVACY.md](PRIVACY.md) for the full privacy promise.
 
 ```text
 Payment app posts a success notification
-                 │
-                 ▼
+                 |
+                 v
 Android NotificationListenerService
-                 │ package allow-list
-                 ▼
+                 | package allow-list
+                 v
 PaymentParser
-  amount · merchant · direction · category
-                 │
-                 ├── duplicate check
-                 ▼
+  amount - merchant - direction - category
+                 |
+                 +-- duplicate check
+                 v
 Local Room database
-                 │
-                 ├── Compose dashboard
-                 └── immediate budget notification
+                 |
+                 +-- Compose dashboard
+                 +-- immediate budget notification
 ```
 
 POCKT currently recognizes these Android packages:
@@ -83,20 +83,21 @@ Payment apps can change their notification wording. POCKT deliberately ignores u
 
 1. Open the repository's **Actions** tab.
 2. Select the latest successful **Android APK** run.
-3. Under **Artifacts**, download `POCKT-debug-apk`.
-4. Extract the ZIP and install `POCKT-v0.2.0-debug.apk` on your Android device.
+3. Under **Artifacts**, download `POCKT-release-apk`.
+4. Extract the ZIP and install `POCKT-v0.3.0-release.apk` on your Android device.
 
-Android may ask you to allow installation from your browser or file manager. Debug APKs are intended for personal testing and are not Play Store releases.
+Android may ask you to allow installation from your browser or file manager. This APK is signed for personal testing, but it is still not a Play Store release.
 
-### If Android says “App not installed”
+### If Android says "App not installed" or Play Protect blocks it
 
-1. Uninstall any earlier POCKT build first. APKs produced before v0.2 may have a different debug signature and Android will not replace them.
-2. Download the APK again from the newest successful workflow—not the source-code ZIP.
-3. Extract `POCKT-v0.2.0-debug.apk` from the downloaded artifact ZIP before opening it.
+1. Uninstall any earlier POCKT build first. APKs produced before v0.3 used a debug signature and Android will not replace them with the new release-signed APK.
+2. Download the APK again from the newest successful workflow, not the source-code ZIP.
+3. Extract `POCKT-v0.3.0-release.apk` from the downloaded artifact ZIP before opening it.
 4. Enable **Install unknown apps** for the browser or file manager you use to open the APK.
-5. Confirm the device runs Android 6.0 or newer and has available storage.
+5. If Play Protect shows a warning, choose **More details** and then **Install anyway** only if you understand this is your own test build from your GitHub repo.
+6. Confirm the device runs Android 6.0 or newer and has available storage.
 
-From v0.2 onward, GitHub Actions preserves POCKT's debug signing key so future workflow APKs can update the installed app normally.
+From v0.3 onward, GitHub Actions preserves POCKT's release signing key so future workflow APKs can update the installed app normally.
 
 You can also open **Android APK**, choose **Run workflow**, and start a fresh build manually.
 
@@ -138,12 +139,12 @@ The repository's CI uses a pinned Gradle installation, so it does not depend on 
 
 ```text
 app/src/main/java/com/pockt/app/
-├── data/           Room entities, DAO, repository, budget state
-├── notifications/  Payment parser and Android listener service
-├── ui/             Compose screens and view model
-├── ui/theme/       POCKT dark design system
-├── MainActivity.kt
-└── PocktApplication.kt
++-- data/           Room entities, DAO, repository, budget state
++-- notifications/  Payment parser and Android listener service
++-- ui/             Compose screens and view model
++-- ui/theme/       POCKT dark design system
++-- MainActivity.kt
++-- PocktApplication.kt
 ```
 
 ## Current status
