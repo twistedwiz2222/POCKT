@@ -24,9 +24,26 @@ android {
         applicationId = "com.pockt.money"
         minSdk = 23
         targetSdk = 36
-        versionCode = 5
-        versionName = "0.5.0"
+        versionCode = 6
+        versionName = "0.6.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("safe") {
+            dimension = "distribution"
+            applicationIdSuffix = ".safe"
+            versionNameSuffix = "-safe"
+            buildConfigField("boolean", "PAYMENT_DETECTOR_ENABLED", "false")
+            manifestPlaceholders["notificationListenerEnabled"] = "false"
+        }
+        create("full") {
+            dimension = "distribution"
+            versionNameSuffix = "-full"
+            buildConfigField("boolean", "PAYMENT_DETECTOR_ENABLED", "true")
+            manifestPlaceholders["notificationListenerEnabled"] = "true"
+        }
     }
 
     signingConfigs {

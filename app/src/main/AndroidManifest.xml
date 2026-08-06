@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <application
         android:name=".PocktApplication"
         android:allowBackup="false"
@@ -8,7 +9,8 @@
         android:label="POCKT"
         android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/Theme.POCKT"
-        android:usesCleartextTraffic="false">
+        android:usesCleartextTraffic="false"
+        tools:replace="android:label">
         <activity
             android:name=".MainActivity"
             android:exported="true">

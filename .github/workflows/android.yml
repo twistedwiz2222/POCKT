@@ -63,31 +63,35 @@ jobs:
           POCKT_KEY_PASSWORD: pockt-local-release-pass
 
       - name: Run unit tests
-        run: gradle --no-daemon testDebugUnitTest
+        run: gradle --no-daemon testFullDebugUnitTest testSafeDebugUnitTest
 
-      - name: Build release APK
-        run: gradle --no-daemon assembleRelease
+      - name: Build release APKs
+        run: gradle --no-daemon assembleFullRelease assembleSafeRelease
         env:
           POCKT_KEYSTORE_PATH: /home/runner/.android/pockt-release.keystore
           POCKT_KEYSTORE_PASSWORD: pockt-local-release-pass
           POCKT_KEY_ALIAS: pockt
           POCKT_KEY_PASSWORD: pockt-local-release-pass
 
-      - name: Verify and prepare APK
+      - name: Verify and prepare APKs
         shell: bash
         run: |
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)"
-          "$APKSIGNER" verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk
-          unzip -t app/build/outputs/apk/release/app-release.apk
-          cp app/build/outputs/apk/release/app-release.apk POCKT-v0.5.0-release.apk
-          sha256sum POCKT-v0.5.0-release.apk > POCKT-v0.5.0-release.apk.sha256
+          "$APKSIGNER" verify --verbose --print-certs app/build/outputs/apk/full/release/app-full-release.apk
+          "$APKSIGNER" verify --verbose --print-certs app/build/outputs/apk/safe/release/app-safe-release.apk
+          unzip -t app/build/outputs/apk/full/release/app-full-release.apk
+          unzip -t app/build/outputs/apk/safe/release/app-safe-release.apk
+          cp app/build/outputs/apk/full/release/app-full-release.apk POCKT-v0.6.0-full-detector.apk
+          cp app/build/outputs/apk/safe/release/app-safe-release.apk POCKT-v0.6.0-safe-manual.apk
+          sha256sum POCKT-v0.6.0-full-detector.apk POCKT-v0.6.0-safe-manual.apk > POCKT-v0.6.0.sha256
 
       - name: Upload POCKT APK
         uses: actions/upload-artifact@v4
         with:
-          name: POCKT-release-apk
+          name: POCKT-release-apks
           path: |
-            POCKT-v0.5.0-release.apk
-            POCKT-v0.5.0-release.apk.sha256
+            POCKT-v0.6.0-full-detector.apk
+            POCKT-v0.6.0-safe-manual.apk
+            POCKT-v0.6.0.sha256
           if-no-files-found: error
           retention-days: 30
