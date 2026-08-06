@@ -1,12 +1,14 @@
 <div align="center">
 
+<img src="assets/branding/pockt-logo.png" alt="POCKT logo" width="160" />
+
 # POCKT
 
 ### Know what every payment costs you.
 
 A private, offline-first Android spending companion that turns payment confirmations into immediate budget awareness.
 
-![Android](https://img.shields.io/badge/Android-8.0%2B-61E7B6?style=flat-square&logo=android&logoColor=080A0D)
+![Android](https://img.shields.io/badge/Android-6.0%2B-61E7B6?style=flat-square&logo=android&logoColor=080A0D)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.1-9CB8FF?style=flat-square&logo=kotlin&logoColor=white)
 ![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-61E7B6?style=flat-square)
 ![Privacy](https://img.shields.io/badge/Data-on--device-181D23?style=flat-square)
@@ -82,9 +84,19 @@ Payment apps can change their notification wording. POCKT deliberately ignores u
 1. Open the repository's **Actions** tab.
 2. Select the latest successful **Android APK** run.
 3. Under **Artifacts**, download `POCKT-debug-apk`.
-4. Extract the ZIP and install `app-debug.apk` on your Android device.
+4. Extract the ZIP and install `POCKT-v0.2.0-debug.apk` on your Android device.
 
 Android may ask you to allow installation from your browser or file manager. Debug APKs are intended for personal testing and are not Play Store releases.
+
+### If Android says “App not installed”
+
+1. Uninstall any earlier POCKT build first. APKs produced before v0.2 may have a different debug signature and Android will not replace them.
+2. Download the APK again from the newest successful workflow—not the source-code ZIP.
+3. Extract `POCKT-v0.2.0-debug.apk` from the downloaded artifact ZIP before opening it.
+4. Enable **Install unknown apps** for the browser or file manager you use to open the APK.
+5. Confirm the device runs Android 6.0 or newer and has available storage.
+
+From v0.2 onward, GitHub Actions preserves POCKT's debug signing key so future workflow APKs can update the installed app normally.
 
 You can also open **Android APK**, choose **Run workflow**, and start a fresh build manually.
 
@@ -94,7 +106,7 @@ You can also open **Android APK**, choose **Run workflow**, and start a fresh bu
 
 - Android Studio with Android SDK 36
 - JDK 17
-- Android 8.0/API 26 or newer device or emulator
+- Android 6.0/API 23 or newer device or emulator
 
 ### Steps
 

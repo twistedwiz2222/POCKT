@@ -5,7 +5,9 @@
         android:name=".PocktApplication"
         android:allowBackup="false"
         android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
         android:label="POCKT"
+        android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/Theme.POCKT"
         android:usesCleartextTraffic="false">
         <activity
