@@ -47,7 +47,7 @@ import java.util.Locale
 private enum class Tab { HOME, ACTIVITY, SETTINGS }
 
 @Composable
-fun PocktApp(state: AppState, vm: PocktViewModel, onOpenNotificationAccess: () -> Unit) {
+fun PocktApp(state: AppState, vm: PocktViewModel) {
     var tab by rememberSaveable { mutableStateOf(Tab.HOME) }
     var addOpen by remember { mutableStateOf(false) }
     Scaffold(
@@ -66,14 +66,14 @@ fun PocktApp(state: AppState, vm: PocktViewModel, onOpenNotificationAccess: () -
         when (tab) {
             Tab.HOME -> Dashboard(state, Modifier.padding(padding))
             Tab.ACTIVITY -> ActivityScreen(state.transactions, vm::delete, Modifier.padding(padding))
-            Tab.SETTINGS -> SettingsScreen(state, vm, onOpenNotificationAccess, Modifier.padding(padding))
+            Tab.SETTINGS -> SettingsScreen(state, vm, Modifier.padding(padding))
         }
     }
     if (addOpen) AddExpenseDialog(onDismiss = { addOpen = false }) { amount, merchant, category -> vm.add(amount, merchant, category); addOpen = false }
 }
 
 @Composable
-fun OnboardingScreen(onEnableAccess: () -> Unit, onComplete: (String) -> Unit) {
+fun OnboardingScreen(onComplete: (String) -> Unit) {
     var page by rememberSaveable { mutableIntStateOf(0) }
     var budget by rememberSaveable { mutableStateOf("4000") }
     Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.SpaceBetween) {
@@ -81,14 +81,14 @@ fun OnboardingScreen(onEnableAccess: () -> Unit, onComplete: (String) -> Unit) {
             Spacer(Modifier.height(30.dp))
             Text("POCKT", color = Mint, fontSize = 15.sp, fontWeight = FontWeight.Bold, letterSpacing = 4.sp)
             Spacer(Modifier.height(40.dp))
-            Text(if (page == 0) "Know what every payment costs you." else "Set your monthly limit.", fontSize = 38.sp, lineHeight = 43.sp, fontWeight = FontWeight.SemiBold)
+            Text(if (page == 0) "Know what every rupee costs you." else "Set your monthly limit.", fontSize = 38.sp, lineHeight = 43.sp, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(18.dp))
-            Text(if (page == 0) "POCKT reads supported payment confirmations on this device and instantly shows what remains. Nothing leaves your phone." else "Start with the money you can actually spend this month. You can change it anytime.", color = Muted, fontSize = 17.sp, lineHeight = 25.sp)
+            Text(if (page == 0) "POCKT tracks the expenses you add and shows what remains. Nothing leaves your phone." else "Start with the money you can actually spend this month. You can change it anytime.", color = Muted, fontSize = 17.sp, lineHeight = 25.sp)
             Spacer(Modifier.height(36.dp))
             if (page == 0) {
                 PrivacyRow("Local only", "No account, cloud, ads, or tracking")
-                PrivacyRow("Payment notifications", "Google Pay, Paytm, PhonePe and BHIM")
-                PrivacyRow("Never payment screens", "No PINs, OTPs, SMS or Accessibility access")
+                PrivacyRow("Manual entries", "Add spends in a few taps after payment")
+                PrivacyRow("No sensitive access", "No notifications, PINs, OTPs, SMS or Accessibility")
             } else {
                 OutlinedTextField(value = budget, onValueChange = { budget = it.filter(Char::isDigit).take(8) }, prefix = { Text("₹") }, label = { Text("Monthly budget") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), textStyle = LocalTextStyle.current.copy(fontSize = 28.sp), modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(14.dp))
@@ -96,8 +96,6 @@ fun OnboardingScreen(onEnableAccess: () -> Unit, onComplete: (String) -> Unit) {
             }
         }
         Column {
-            if (page == 0) OutlinedButton(onClick = onEnableAccess, modifier = Modifier.fillMaxWidth().height(54.dp)) { Text("Enable notification access") }
-            Spacer(Modifier.height(12.dp))
             Button(onClick = { if (page == 0) page = 1 else onComplete(budget) }, modifier = Modifier.fillMaxWidth().height(56.dp), enabled = page == 0 || (budget.toLongOrNull() ?: 0) > 0) { Text(if (page == 0) "Continue" else "Start using POCKT") }
         }
     }
@@ -174,21 +172,19 @@ fun OnboardingScreen(onEnableAccess: () -> Unit, onComplete: (String) -> Unit) {
     }
 }
 
-@Composable private fun EmptyActivity() { Card(colors = CardDefaults.cardColors(containerColor = Raised), shape = RoundedCornerShape(20.dp)) { Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) { Icon(Icons.Outlined.ReceiptLong, null, tint = Muted); Spacer(Modifier.height(10.dp)); Text("No spending yet", fontWeight = FontWeight.Medium); Text("Detected and manual expenses will appear here.", color = Muted, fontSize = 13.sp) } } }
+@Composable private fun EmptyActivity() { Card(colors = CardDefaults.cardColors(containerColor = Raised), shape = RoundedCornerShape(20.dp)) { Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) { Icon(Icons.Outlined.ReceiptLong, null, tint = Muted); Spacer(Modifier.height(10.dp)); Text("No spending yet", fontWeight = FontWeight.Medium); Text("Manual expenses will appear here.", color = Muted, fontSize = 13.sp) } } }
 
-@Composable private fun SettingsScreen(state: AppState, vm: PocktViewModel, access: () -> Unit, modifier: Modifier = Modifier) {
+@Composable private fun SettingsScreen(state: AppState, vm: PocktViewModel, modifier: Modifier = Modifier) {
     var budget by remember(state.budget.monthlyBudgetPaise) { mutableStateOf((state.budget.monthlyBudgetPaise / 100).toString()) }
     var confirmClear by remember { mutableStateOf(false) }
     LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(22.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         item { Spacer(Modifier.height(12.dp)); Text("Settings", fontSize = 30.sp, fontWeight = FontWeight.SemiBold); Text("Private by default.", color = Muted); Spacer(Modifier.height(12.dp)) }
         item { Text("BUDGET", color = Muted, fontSize = 11.sp, letterSpacing = 1.5.sp) }
         item { OutlinedTextField(budget, { budget = it.filter(Char::isDigit).take(8) }, modifier = Modifier.fillMaxWidth(), prefix = { Text("₹") }, label = { Text("Monthly spending limit") }, trailingIcon = { TextButton({ vm.setBudget(budget) }) { Text("Save") } }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)) }
-        item { Text("DETECTION", color = Muted, fontSize = 11.sp, letterSpacing = 1.5.sp) }
-        item { SettingCard("Notification access", "Required to detect payment confirmations", access) }
         item { Text("DATA", color = Muted, fontSize = 11.sp, letterSpacing = 1.5.sp) }
         item { SettingCard("Stored locally", "${state.transactions.size} transactions · no cloud sync") {} }
         item { OutlinedButton(onClick = { confirmClear = true }, colors = ButtonDefaults.outlinedButtonColors(contentColor = Coral), modifier = Modifier.fillMaxWidth()) { Text("Delete all POCKT data") } }
-        item { Text("POCKT never reads payment screens, PINs, OTPs, SMS, contacts, or location.", color = Muted, fontSize = 12.sp, lineHeight = 18.sp); Spacer(Modifier.height(70.dp)) }
+        item { Text("POCKT never reads notifications, payment screens, PINs, OTPs, SMS, contacts, or location.", color = Muted, fontSize = 12.sp, lineHeight = 18.sp); Spacer(Modifier.height(70.dp)) }
     }
     if (confirmClear) AlertDialog(onDismissRequest = { confirmClear = false }, title = { Text("Delete everything?") }, text = { Text("All transactions and your budget will be permanently removed from this phone.") }, confirmButton = { TextButton({ vm.clear(); confirmClear = false }) { Text("Delete", color = Coral) } }, dismissButton = { TextButton({ confirmClear = false }) { Text("Cancel") } })
 }
