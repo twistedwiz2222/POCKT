@@ -84,20 +84,21 @@ Payment apps can change their notification wording. POCKT deliberately ignores u
 1. Open the repository's **Actions** tab.
 2. Select the latest successful **Android APK** run.
 3. Under **Artifacts**, download `POCKT-release-apk`.
-4. Extract the ZIP and install `POCKT-v0.3.0-release.apk` on your Android device.
+4. Extract the ZIP and install `POCKT-v0.4.0-release.apk` on your Android device.
 
 Android may ask you to allow installation from your browser or file manager. This APK is signed for personal testing, but it is still not a Play Store release.
 
 ### If Android says "App not installed" or Play Protect blocks it
 
-1. Uninstall any earlier POCKT build first. APKs produced before v0.3 used a debug signature and Android will not replace them with the new release-signed APK.
+1. Uninstall any earlier POCKT build first if it appears in app settings. APKs produced before v0.4 used a different app identity or signature.
 2. Download the APK again from the newest successful workflow, not the source-code ZIP.
-3. Extract `POCKT-v0.3.0-release.apk` from the downloaded artifact ZIP before opening it.
-4. Enable **Install unknown apps** for the browser or file manager you use to open the APK.
-5. If Play Protect shows a warning, choose **More details** and then **Install anyway** only if you understand this is your own test build from your GitHub repo.
-6. Confirm the device runs Android 6.0 or newer and has available storage.
+3. Extract `POCKT-v0.4.0-release.apk` from the downloaded artifact ZIP before opening it.
+4. Open the APK from Chrome Downloads or the phone's Files app. Avoid forwarding the APK through WhatsApp during testing.
+5. Enable **Install unknown apps** for the browser or file manager you use to open the APK.
+6. If Play Protect shows a warning, choose **More details** and then **Install anyway** only if you understand this is your own test build from your GitHub repo.
+7. Confirm the device runs Android 6.0 or newer and has available storage.
 
-From v0.3 onward, GitHub Actions preserves POCKT's release signing key so future workflow APKs can update the installed app normally.
+From v0.4 onward, GitHub Actions preserves POCKT's release signing key and package identity so future workflow APKs can update the installed app normally.
 
 You can also open **Android APK**, choose **Run workflow**, and start a fresh build manually.
 
