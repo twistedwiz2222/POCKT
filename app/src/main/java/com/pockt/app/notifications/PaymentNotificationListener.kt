@@ -31,28 +31,33 @@ class PaymentNotificationListener : NotificationListenerService() {
         if (sbn.packageName == packageName) return
         val extras = sbn.notification.extras
         val title = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
-        val body = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
-            ?: extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()
-        val parsed = PaymentParser.parse(sbn.packageName, title, body, sbn.postTime) ?: return
+        val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
+        val bigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()
+        val subText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()
+        val body = listOfNotNull(text, bigText, subText).distinct().joinToString(" | ")
+        val result = PaymentParser.inspect(sbn.packageName, title, body, sbn.postTime)
         scope.launch {
             val repo = (application as PocktApplication).repository
+            val parsed = result.payment
+            repo.addNotificationDebug(sbn.packageName, appName(sbn.packageName), title, body, sbn.postTime, result.parsed, result.reason)
+            if (parsed == null) return@launch
             if (repo.isDuplicate(parsed.fingerprint)) return@launch
             repo.add(parsed.amountPaise, parsed.merchant, parsed.category, appName(sbn.packageName), sbn.postTime, parsed.fingerprint, parsed.direction)
             if (parsed.direction == TransactionDirection.EXPENSE) {
                 val state = repo.state.first()
-                showBudgetAlert(parsed.amountPaise, parsed.merchant, state.budget.remainingPaise, state.budget.safeDailyPaise)
+                showBudgetAlert(parsed.amountPaise, parsed.merchant, state.budget.remainingPaise, state.budget.safeDailyPaise, state.budget.recoveryDailyPaise, state.budget.recoveryDays)
             }
         }
     }
 
-    private fun showBudgetAlert(amount: Long, merchant: String, remaining: Long, safeDaily: Long) {
+    private fun showBudgetAlert(amount: Long, merchant: String, remaining: Long, safeDaily: Long, recoveryDaily: Long, recoveryDays: Int) {
         val intent = Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val pending = PendingIntent.getActivity(this, 10, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val notification = NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("${money(amount)} spent at $merchant")
-            .setContentText("${money(remaining)} left · ${money(safeDaily)}/day available")
-            .setStyle(NotificationCompat.BigTextStyle().bigText("${money(remaining)} left this month · ${money(safeDaily)} safe to spend per day"))
+            .setContentText("${money(remaining)} left - ${money(safeDaily)}/day safe")
+            .setStyle(NotificationCompat.BigTextStyle().bigText("${money(remaining)} left this cycle. Spend about ${money(safeDaily)}/day, or ${money(recoveryDaily)}/day for the next $recoveryDays days to stay steady."))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setContentIntent(pending)

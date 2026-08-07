@@ -24,6 +24,18 @@ data class PreferenceEntity(
     val value: String,
 )
 
+@Entity(tableName = "notification_debug")
+data class NotificationDebugEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val packageName: String,
+    val appName: String,
+    val title: String,
+    val body: String,
+    val postedAt: Long,
+    val parsed: Boolean,
+    val reason: String,
+)
+
 data class BudgetSnapshot(
     val monthlyBudgetPaise: Long,
     val spentPaise: Long,
@@ -31,6 +43,16 @@ data class BudgetSnapshot(
     val safeDailyPaise: Long,
     val daysRemaining: Int,
     val progress: Float,
+    val cycleStartDay: Int,
+    val cycleStartMillis: Long,
+    val cycleEndMillis: Long,
+    val daysElapsed: Int,
+    val todaySpendPaise: Long,
+    val todayLimitPaise: Long,
+    val todayOverPaise: Long,
+    val recoveryDailyPaise: Long,
+    val recoveryDays: Int,
+    val projectedOverspendPaise: Long,
 )
 
 object Categories {

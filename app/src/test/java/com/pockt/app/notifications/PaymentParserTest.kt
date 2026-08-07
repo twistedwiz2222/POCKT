@@ -7,13 +7,33 @@ import org.junit.Test
 
 class PaymentParserTest {
     private val gpay = "com.google.android.apps.nbu.paisa.user"
+    private val phonePe = "com.phonepe.app"
 
-    @Test fun parsesExpense() {
+    @Test fun parsesExpenseWithRupeeSymbol() {
         val value = PaymentParser.parse(gpay, "Payment successful", "₹280 paid to ABC Cafe", 1_000_000)!!
         assertEquals(28_000, value.amountPaise)
         assertEquals("ABC Cafe", value.merchant)
         assertEquals("Food", value.category)
         assertEquals(TransactionDirection.EXPENSE, value.direction)
+    }
+
+    @Test fun parsesPhonePeSuccessText() {
+        val value = PaymentParser.parse(phonePe, "Payment Successful", "Paid ₹1 to ABHRAJIT MISRA", 1_000_000)!!
+        assertEquals(100, value.amountPaise)
+        assertEquals("ABHRAJIT MISRA", value.merchant)
+        assertEquals(TransactionDirection.EXPENSE, value.direction)
+    }
+
+    @Test fun parsesRsFormat() {
+        val value = PaymentParser.parse(gpay, "Paid", "Rs. 1,500.50 paid to Store", 1_000_000)!!
+        assertEquals(150_050, value.amountPaise)
+        assertEquals("Store", value.merchant)
+    }
+
+    @Test fun explainsMiss() {
+        val result = PaymentParser.inspect(phonePe, "Offer", "Get cashback now", 1_000_000)
+        assertEquals(false, result.parsed)
+        assertEquals("no success words", result.reason)
     }
 
     @Test fun ignoresFailure() = assertNull(PaymentParser.parse(gpay, "Payment failed", "₹500 payment failed", 1_000_000))

@@ -36,11 +36,21 @@ interface PocktDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun savePreference(preference: PreferenceEntity)
 
+    @Query("SELECT * FROM notification_debug ORDER BY postedAt DESC LIMIT 20")
+    fun observeNotificationDebug(): Flow<List<NotificationDebugEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertNotificationDebug(item: NotificationDebugEntity)
+
+    @Query("DELETE FROM notification_debug WHERE id NOT IN (SELECT id FROM notification_debug ORDER BY postedAt DESC LIMIT 40)")
+    suspend fun trimNotificationDebug()
+
     @Query("DELETE FROM transactions") suspend fun deleteAllTransactions()
     @Query("DELETE FROM preferences") suspend fun deleteAllPreferences()
+    @Query("DELETE FROM notification_debug") suspend fun deleteAllNotificationDebug()
 }
 
-@Database(entities = [TransactionEntity::class, PreferenceEntity::class], version = 1, exportSchema = false)
+@Database(entities = [TransactionEntity::class, PreferenceEntity::class, NotificationDebugEntity::class], version = 2, exportSchema = false)
 abstract class PocktDatabase : RoomDatabase() {
     abstract fun dao(): PocktDao
 
@@ -48,7 +58,7 @@ abstract class PocktDatabase : RoomDatabase() {
         @Volatile private var instance: PocktDatabase? = null
         fun get(context: Context): PocktDatabase = instance ?: synchronized(this) {
             instance ?: Room.databaseBuilder(context.applicationContext, PocktDatabase::class.java, "pockt.db")
-                .fallbackToDestructiveMigration(false)
+                .fallbackToDestructiveMigration()
                 .build()
                 .also { instance = it }
         }
