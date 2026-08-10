@@ -81,17 +81,17 @@ jobs:
           "$APKSIGNER" verify --verbose --print-certs app/build/outputs/apk/safe/release/app-safe-release.apk
           unzip -t app/build/outputs/apk/full/release/app-full-release.apk
           unzip -t app/build/outputs/apk/safe/release/app-safe-release.apk
-          cp app/build/outputs/apk/full/release/app-full-release.apk POCKT-v0.7.0-full-detector.apk
-          cp app/build/outputs/apk/safe/release/app-safe-release.apk POCKT-v0.7.0-safe-manual.apk
-          sha256sum POCKT-v0.7.0-full-detector.apk POCKT-v0.7.0-safe-manual.apk > POCKT-v0.7.0.sha256
+          cp app/build/outputs/apk/full/release/app-full-release.apk POCKT-v0.8.0-full-detector.apk
+          cp app/build/outputs/apk/safe/release/app-safe-release.apk POCKT-v0.8.0-safe-manual.apk
+          sha256sum POCKT-v0.8.0-full-detector.apk POCKT-v0.8.0-safe-manual.apk > POCKT-v0.8.0.sha256
 
       - name: Upload POCKT APK
         uses: actions/upload-artifact@v4
         with:
           name: POCKT-release-apks
           path: |
-            POCKT-v0.7.0-full-detector.apk
-            POCKT-v0.7.0-safe-manual.apk
-            POCKT-v0.7.0.sha256
+            POCKT-v0.8.0-full-detector.apk
+            POCKT-v0.8.0-safe-manual.apk
+            POCKT-v0.8.0.sha256
           if-no-files-found: error
           retention-days: 30

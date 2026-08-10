@@ -17,7 +17,7 @@ class PaymentParserTest {
         assertEquals(TransactionDirection.EXPENSE, value.direction)
     }
 
-    @Test fun parsesPhonePeSuccessText() {
+    @Test fun parsesPhonePeOutgoingSuccessText() {
         val value = PaymentParser.parse(phonePe, "Payment Successful", "Paid ₹1 to ABHRAJIT MISRA", 1_000_000)!!
         assertEquals(100, value.amountPaise)
         assertEquals("ABHRAJIT MISRA", value.merchant)
@@ -30,10 +30,16 @@ class PaymentParserTest {
         assertEquals("Store", value.merchant)
     }
 
+    @Test fun ignoresReceivedMoney() {
+        val result = PaymentParser.inspect(phonePe, "Money received", "Received ₹500 from Rohan", 1_000_000)
+        assertNull(result.payment)
+        assertEquals("incoming ignored", result.reason)
+    }
+
     @Test fun explainsMiss() {
         val result = PaymentParser.inspect(phonePe, "Offer", "Get cashback now", 1_000_000)
         assertEquals(false, result.parsed)
-        assertEquals("no success words", result.reason)
+        assertEquals("no outgoing words", result.reason)
     }
 
     @Test fun ignoresFailure() = assertNull(PaymentParser.parse(gpay, "Payment failed", "₹500 payment failed", 1_000_000))

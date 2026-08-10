@@ -236,10 +236,10 @@ private fun introCopy(detectorEnabled: Boolean): String =
         }
         item { Text("DATA", color = Muted, fontSize = 11.sp, letterSpacing = 1.5.sp) }
         item { SettingCard("Stored locally", "${state.transactions.size} transactions - no cloud sync") {} }
-        item { OutlinedButton(onClick = { confirmClear = true }, colors = ButtonDefaults.outlinedButtonColors(contentColor = Coral), modifier = Modifier.fillMaxWidth()) { Text("Delete all POCKT data") } }
+        item { OutlinedButton(onClick = { confirmClear = true }, colors = ButtonDefaults.outlinedButtonColors(contentColor = Coral), modifier = Modifier.fillMaxWidth()) { Text("Reset and start over") } }
         item { Text(if (detectorEnabled) "POCKT reads payment notifications only after you grant Android notification access. It never reads payment screens, PINs, OTPs, SMS, contacts, or location." else "POCKT never reads notifications, payment screens, PINs, OTPs, SMS, contacts, or location.", color = Muted, fontSize = 12.sp, lineHeight = 18.sp); Spacer(Modifier.height(70.dp)) }
     }
-    if (confirmClear) AlertDialog(onDismissRequest = { confirmClear = false }, title = { Text("Delete everything?") }, text = { Text("All transactions, debug logs, and your budget will be permanently removed from this phone.") }, confirmButton = { TextButton({ vm.clear(); confirmClear = false }) { Text("Delete", color = Coral) } }, dismissButton = { TextButton({ confirmClear = false }) { Text("Cancel") } })
+    if (confirmClear) AlertDialog(onDismissRequest = { confirmClear = false }, title = { Text("Reset POCKT?") }, text = { Text("This clears transactions, debug logs, budget, cycle settings, and returns POCKT to monthly setup.") }, confirmButton = { TextButton({ vm.clear(); confirmClear = false }) { Text("Reset", color = Coral) } }, dismissButton = { TextButton({ confirmClear = false }) { Text("Cancel") } })
 }
 
 @Composable private fun DebugRow(item: NotificationDebugEntity) {

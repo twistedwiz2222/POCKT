@@ -29,8 +29,8 @@ POCKT now ships two APK flavors from GitHub Actions:
 
 | APK | What it does | Play Protect risk |
 | --- | --- | --- |
-| `POCKT-v0.7.0-full-detector.apk` | Detects supported payment notifications and sends POCKT budget notifications | May be blocked when sideloaded because Android treats notification-listener apps as sensitive |
-| `POCKT-v0.7.0-safe-manual.apk` | Manual expense tracking only | Lower risk, but not the core POCKT experience |
+| `POCKT-v0.8.0-full-detector.apk` | Detects supported payment notifications and sends POCKT budget notifications | May be blocked when sideloaded because Android treats notification-listener apps as sensitive |
+| `POCKT-v0.8.0-safe-manual.apk` | Manual expense tracking only | Lower risk, but not the core POCKT experience |
 
 Use the **full detector** APK if you want the real automatic POCKT behavior.
 
@@ -96,7 +96,7 @@ Payment apps can change their notification wording. POCKT deliberately ignores u
 2. Select the latest successful **Android APK** run.
 3. Under **Artifacts**, download `POCKT-release-apks`.
 4. Extract the ZIP.
-5. Install `POCKT-v0.7.0-full-detector.apk` for automatic payment detection.
+5. Install `POCKT-v0.8.0-full-detector.apk` for automatic payment detection.
 
 Android may ask you to allow installation from your browser or file manager. This APK is signed for personal testing, but it is still not a Play Store release.
 
@@ -106,10 +106,10 @@ That block is caused by Android treating sideloaded notification-listener apps a
 
 Practical options:
 
-- Install with ADB from a computer: `adb install POCKT-v0.7.0-full-detector.apk`
+- Install with ADB from a computer: `adb install POCKT-v0.8.0-full-detector.apk`
 - Temporarily turn off Play Protect scanning, install POCKT, then turn scanning back on
 - Use Play Console internal testing later, which is the cleaner route for testing sensitive-permission APKs
-- Install `POCKT-v0.7.0-safe-manual.apk` only as a fallback
+- Install `POCKT-v0.8.0-safe-manual.apk` only as a fallback
 
 Do not install through WhatsApp during testing. Download from GitHub Actions and open the APK from Chrome Downloads or the phone's Files app.
 
