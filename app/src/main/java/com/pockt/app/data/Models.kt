@@ -49,10 +49,7 @@ data class BudgetSnapshot(
     val daysElapsed: Int,
     val todaySpendPaise: Long,
     val todayLimitPaise: Long,
-    val todayOverPaise: Long,
-    val recoveryDailyPaise: Long,
-    val recoveryDays: Int,
-    val projectedOverspendPaise: Long,
+    val todaySavedPaise: Long,
 )
 
 object Categories {

@@ -42,10 +42,7 @@ class PocktViewModel(application: Application) : AndroidViewModel(application) {
             daysElapsed = 1,
             todaySpendPaise = 0,
             todayLimitPaise = 0,
-            todayOverPaise = 0,
-            recoveryDailyPaise = 0,
-            recoveryDays = 1,
-            projectedOverspendPaise = 0,
+            todaySavedPaise = 0,
         )
     }
 }

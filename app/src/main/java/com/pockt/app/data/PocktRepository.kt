@@ -36,13 +36,8 @@ class PocktRepository(private val dao: PocktDao) {
         val daysElapsed = (ChronoUnit.DAYS.between(cycleStartDate, now) + 1).toInt().coerceIn(1, cycleLengthDays)
         val dailyLimit = budget / cycleLengthDays
         val todaySpend = cycleItems.filter { it.occurredAt in todayStart until tomorrowStart && it.direction == TransactionDirection.EXPENSE.name }.sumOf { it.amountPaise }
-        val todayOver = (todaySpend - dailyLimit).coerceAtLeast(0)
+        val todaySaved = (dailyLimit - todaySpend).coerceAtLeast(0)
         val safeDaily = remaining / daysRemaining
-        val recoveryDays = minOf(7, daysRemaining).coerceAtLeast(1)
-        val recoveryDaily = remaining / recoveryDays
-        val averageDaily = if (daysElapsed <= 0) 0 else netSpent / daysElapsed
-        val projectedSpend = averageDaily * cycleLengthDays
-        val projectedOverspend = (projectedSpend - budget).coerceAtLeast(0)
         AppState(
             transactions = items,
             budget = BudgetSnapshot(
@@ -58,10 +53,7 @@ class PocktRepository(private val dao: PocktDao) {
                 daysElapsed = daysElapsed,
                 todaySpendPaise = todaySpend,
                 todayLimitPaise = dailyLimit,
-                todayOverPaise = todayOver,
-                recoveryDailyPaise = recoveryDaily,
-                recoveryDays = recoveryDays,
-                projectedOverspendPaise = projectedOverspend,
+                todaySavedPaise = todaySaved,
             ),
             preferences = prefs,
             notificationDebug = debug,

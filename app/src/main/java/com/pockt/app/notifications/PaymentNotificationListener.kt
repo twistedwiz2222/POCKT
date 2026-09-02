@@ -45,19 +45,20 @@ class PaymentNotificationListener : NotificationListenerService() {
             repo.add(parsed.amountPaise, parsed.merchant, parsed.category, appName(sbn.packageName), sbn.postTime, parsed.fingerprint, parsed.direction)
             if (parsed.direction == TransactionDirection.EXPENSE) {
                 val state = repo.state.first()
-                showBudgetAlert(parsed.amountPaise, parsed.merchant, state.budget.remainingPaise, state.budget.safeDailyPaise, state.budget.recoveryDailyPaise, state.budget.recoveryDays)
+                showBudgetAlert(parsed.amountPaise, parsed.merchant, state.budget.remainingPaise, state.budget.safeDailyPaise, state.budget.todaySavedPaise)
             }
         }
     }
 
-    private fun showBudgetAlert(amount: Long, merchant: String, remaining: Long, safeDaily: Long, recoveryDaily: Long, recoveryDays: Int) {
+    private fun showBudgetAlert(amount: Long, merchant: String, remaining: Long, safeDaily: Long, todaySaved: Long) {
         val intent = Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val pending = PendingIntent.getActivity(this, 10, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val detail = if (todaySaved > 0) "${money(todaySaved)} saved today" else "today's allowance used"
         val notification = NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("${money(amount)} spent at $merchant")
             .setContentText("${money(remaining)} left - ${money(safeDaily)}/day safe")
-            .setStyle(NotificationCompat.BigTextStyle().bigText("${money(remaining)} left this cycle. Spend about ${money(safeDaily)}/day, or ${money(recoveryDaily)}/day for the next $recoveryDays days to stay steady."))
+            .setStyle(NotificationCompat.BigTextStyle().bigText("${money(remaining)} left this cycle. ${money(safeDaily)} safe per day; $detail."))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setContentIntent(pending)
@@ -80,7 +81,9 @@ class PaymentNotificationListener : NotificationListenerService() {
         "net.one97.paytm" -> "Paytm"
         "com.phonepe.app" -> "PhonePe"
         "in.org.npci.upiapp" -> "BHIM"
-        else -> "Payment app"
+        "com.csam.icici.bank.imobile" -> "iMobile"
+        "com.sbi.upi" -> "BHIM SBI Pay"
+        else -> pkg
     }
 
     private fun money(paise: Long): String = NumberFormat.getCurrencyInstance(Locale("en", "IN")).format(paise / 100.0).replace(".00", "")

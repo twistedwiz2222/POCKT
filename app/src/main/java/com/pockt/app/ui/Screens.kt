@@ -152,7 +152,7 @@ private fun introCopy(detectorEnabled: Boolean): String =
                 }
             }
         }
-        item { RecoveryCard(state) }
+        item { DailyStatusCard(state) }
         item {
             Text(if (budget.remainingPaise >= 0) "You can safely spend ${money(budget.safeDailyPaise)} today." else "You are ${money(-budget.remainingPaise)} over budget.", fontSize = 19.sp, fontWeight = FontWeight.Medium)
             Text("Cycle starts on day ${budget.cycleStartDay}. ${budget.daysRemaining} days left.", color = Muted, fontSize = 13.sp)
@@ -164,21 +164,20 @@ private fun introCopy(detectorEnabled: Boolean): String =
     }
 }
 
-@Composable private fun RecoveryCard(state: AppState) {
+@Composable private fun DailyStatusCard(state: AppState) {
     val budget = state.budget
     Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF12171C)), shape = RoundedCornerShape(20.dp)) {
         Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("Recovery plan", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Text("Today", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Metric("TODAY", money(budget.todaySpendPaise))
-                Metric("TODAY LIMIT", money(budget.todayLimitPaise), Mint)
-                Metric("7 DAY PLAN", money(budget.recoveryDailyPaise), if (budget.todayOverPaise > 0) Coral else Mint)
+                Metric("SPENT", money(budget.todaySpendPaise))
+                Metric("LIMIT", money(budget.todayLimitPaise), Mint)
+                Metric("SAVED", money(budget.todaySavedPaise), if (budget.todaySavedPaise > 0) Mint else Coral)
             }
             val line = when {
-                budget.remainingPaise < 0 -> "You are over cycle budget. Pause optional spends and use manual review."
-                budget.todayOverPaise > 0 -> "You exceeded today by ${money(budget.todayOverPaise)}. Spend about ${money(budget.recoveryDailyPaise)}/day for the next ${budget.recoveryDays} days."
-                budget.projectedOverspendPaise > 0 -> "At this pace you may overshoot by ${money(budget.projectedOverspendPaise)}. Keep the next week near ${money(budget.recoveryDailyPaise)}/day."
-                else -> "You are on track. Keep today near ${money(budget.todayLimitPaise)} and the cycle near ${money(budget.safeDailyPaise)}/day."
+                budget.remainingPaise < 0 -> "You are over cycle budget. New outgoing payments will still be recorded."
+                budget.todaySavedPaise > 0 -> "You saved ${money(budget.todaySavedPaise)} against today's limit. Nice, that rolls into the cycle cushion."
+                else -> "You have used today's allowance. New outgoing payments will reduce the cycle balance."
             }
             Text(line, color = Muted, fontSize = 13.sp, lineHeight = 18.sp)
         }
@@ -230,8 +229,8 @@ private fun introCopy(detectorEnabled: Boolean): String =
         if (detectorEnabled) {
             item { Text("DETECTION", color = Muted, fontSize = 11.sp, letterSpacing = 1.5.sp) }
             item { SettingCard("Notification access", "Required to detect payment confirmations", access) }
-            item { Text("LAST NOTIFICATIONS", color = Muted, fontSize = 11.sp, letterSpacing = 1.5.sp) }
-            if (state.notificationDebug.isEmpty()) item { Text("No supported payment-app notifications seen yet.", color = Muted, fontSize = 13.sp) }
+            item { Text("NOTIFICATION CHECKS", color = Muted, fontSize = 11.sp, letterSpacing = 1.5.sp) }
+            if (state.notificationDebug.isEmpty()) item { Text("No notifications checked yet. Make a payment, then come back here.", color = Muted, fontSize = 13.sp) }
             items(state.notificationDebug.take(8), key = { it.id }) { DebugRow(it) }
         }
         item { Text("DATA", color = Muted, fontSize = 11.sp, letterSpacing = 1.5.sp) }
