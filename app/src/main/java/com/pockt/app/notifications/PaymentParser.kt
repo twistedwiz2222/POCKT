@@ -38,6 +38,7 @@ object PaymentParser {
     private val failureWords = listOf("failed", "declined", "pending", "processing", "couldn't", "cancelled", "canceled", "reversed", "request")
     private val merchantPatterns = listOf(
         Regex("(?:paid|sent|payment(?:\\s+of)?|debited|transferred|spent)(?:\\s+(?:\\u20B9|rs\\.?|inr)?\\s*[0-9,.]+)?\\s+(?:to|at)\\s+([^.!\\n|]+)", RegexOption.IGNORE_CASE),
+        Regex("(?:payment successful|successful)\\s+([A-Z][A-Z0-9 ._-]{2,60})\\s+(?:\\u20B9|rs\\.?|inr)", RegexOption.IGNORE_CASE),
         Regex("(?:to|at)\\s+([A-Z0-9][^.!\\n|]{2,60})", RegexOption.IGNORE_CASE),
         Regex("^([A-Z][A-Z0-9 ._-]{2,60})\\s+(?:\\u20B9|rs\\.?|inr)", RegexOption.IGNORE_CASE),
     )
